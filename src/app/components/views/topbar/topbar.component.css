@@ -1,0 +1,19 @@
+.bg-navbar {
+    background: #222222;
+}
+.navbar-brand {
+    color: #2eb0b9;
+}
+.navbar-text{
+    font-size: 1.1rem;
+    color: #b1a79b;
+}
+.navbar-brand:hover {
+    color: #84dfe6;
+}
+.nav-link {
+    color:#5b87ca;
+}
+.nav-link:hover {
+    color:#97b7e5;
+}
