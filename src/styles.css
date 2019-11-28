@@ -2,3 +2,8 @@
 html {
     height: 100%;
 }
+
+.list-group-item {
+    color: white;
+    background-color: #444e57;
+}

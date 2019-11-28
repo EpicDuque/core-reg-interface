@@ -9,9 +9,10 @@ import { Observable } from 'rxjs';
 })
 export class UserlistComponent implements OnInit {
 
-  users: Observable<any[]>;
-  constructor(db: DatabaseService) { 
-    this.users = db.getUsers();
+  users$: Observable<any[]>;
+  
+  constructor(private db: DatabaseService) {
+    this.users$ = db.getAllUsers();
   }
 
   ngOnInit() {
