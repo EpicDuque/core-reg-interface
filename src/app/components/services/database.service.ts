@@ -36,4 +36,12 @@ export class DatabaseService {
   getAllUsers(): Observable<any[]> {
     return this.userCol.valueChanges();
   }
+  getAllUsersSortedAdmin() {
+    return this.userCol.ref.orderBy('admin', 'desc').get();
+  }
+  getUsersCol() {
+    return this.userCol.ref;
+  }
+
+  // Debug Functions
 }

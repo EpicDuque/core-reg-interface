@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { DatabaseService } from '../../services/database.service';
 import { Observable } from 'rxjs';
+import { firestore } from 'firebase';
 
 @Component({
   selector: 'app-userlist',
@@ -10,12 +11,32 @@ import { Observable } from 'rxjs';
 export class UserlistComponent implements OnInit {
 
   users$: Observable<any[]>;
+  db: DatabaseService;
   
-  constructor(private db: DatabaseService) {
-    this.users$ = db.getAllUsers();
+  constructor(db: DatabaseService) {
+    this.db = db;
+
+    db.getAllUsers().subscribe(data => {
+      console.log(data);
+      this.getSortedUsers();
+    });
   }
 
   ngOnInit() {
+  }
+
+  getSortedUsers() {
+    this.db.getAllUsersSortedAdmin().then(snapshot => {
+      var documents = [];
+      
+      snapshot.forEach(doc => {
+        documents.push(doc.data());
+      });
+
+      this.users$ = Observable.create(obs => {
+        obs.next(documents);
+      });
+    });
   }
 
 }
