@@ -56,6 +56,7 @@ export class RecentComponent implements OnInit {
       limit: 10,
       name: '',
       date: Date.now(),
+      dateTo: Date.now(),
     });
   }
 
@@ -68,7 +69,6 @@ export class RecentComponent implements OnInit {
 
     const userSubs = observable.subscribe( users => {
       this.users = users;
-      console.log(this.users);
       
       this.refreshAllChecks(10);
       userSubs.unsubscribe();
@@ -76,75 +76,99 @@ export class RecentComponent implements OnInit {
   }
 
   onSubmit(data){
+    console.log(data.date, data.dateTo);
+    var dateFrom = new Date(data.date);
+    var dateTo = new Date(data.dateTo);
+
     this.toggle();
     setTimeout(() => {
-      this.refreshAllChecks(data.limit, data.name);
+
+      this.refreshAllChecks(data.limit, data.name, dateFrom, dateTo);
     }, 150)
   }
 
-  refreshAllChecks(lim: number, name: string = null){
-    if(lim < 1 || lim > 100){
+  refreshAllChecks(lim: number = 10, name: string = null, dateFrom: Date = null, dateTo: Date = null){
+    if(lim < 1 || lim > 200){
       return;
+    }
+
+    // Defaults to checks from the current day if no date is specified.
+    if(dateFrom == null || dateTo == null){
+      dateFrom = new Date(Date.now());
+      dateTo = new Date(Date.now());
+
+      // Start of day
+      dateFrom.setHours(0);
+      dateFrom.setMinutes(0);
+      dateFrom.setMilliseconds(0);
+
+      // End of Day
+      dateTo.setHours(23);
+      dateTo.setMinutes(59);
+      dateTo.setMilliseconds(0);
     }
 
     const db = this.db;
     const observable = db.getChecksCol().valueChanges();
-    const ints = interval(1000);
 
     observable.pipe(
       throttleTime(400),
       
     ).subscribe( () => {
-      // After getting all checks collection...
-      db.getLatestChecks(lim).then(snapshot => {
-        var checks = [];
-        
-        // Get all check info then add it to the custom check array
-        snapshot.forEach(checkSnapshot => {
-          const check = checkSnapshot.data()
+      // After detecting a change in checks collection...
 
-          db.getUser('uid', check.uid).get().then(querySnapshot => {
-            const user = querySnapshot.docs[0].data();
-            var inout: string;
-            
-            if(check.in){
-              inout = 'Check IN'
-            } else {
-              inout = 'Check OUT'
+      db.getChecksByDate(dateFrom, dateTo, lim).then(snapshot => {
+          var checks = [];
+          
+          // Get all check info then add it to the custom check array
+          snapshot.forEach(checkSnapshot => {
+            const check = checkSnapshot.data()
+
+            db.getUser('uid', check.uid).get().then(querySnapshot => {
+              const user = querySnapshot.docs[0].data();
+              var inout: string;
+              
+              if(check.in){
+                inout = 'Check IN'
+              } else {
+                inout = 'Check OUT'
+              }
+
+              var options = { timeZone: 'UTC', timeZoneName: 'short' };
+
+              if(user.name.includes(name) || user.lastname.includes(name) || name === null){
+                checks.push({
+                  snum: user.snum,
+                  uid: user.uid,
+                  name: user.name + ' ' + user.lastname,
+                  time: check.time.toDate().toLocaleTimeString('en-US', options),
+                  date: check.time.toDate().toDateString(),
+                  in: inout,
+                })
+              }
+
+            }).catch(reason => {
+              console.error(reason, 'User not found');
+            })
+          });
+
+          return checks;
+          }).then(checks => {
+            // Pass out newly created checks to the observable to iterate in the page
+            this.checks$ = Observable.create(obs => {
+              obs.next(checks);
+            });
+          }).finally(() => {
+            if(!this.isOpen){
+              this.toggle()
             }
-
-            if(user.name.includes(name) || user.lastname.includes(name) || name === null){
-              checks.push({
-                snum: user.snum,
-                uid: user.uid,
-                name: user.name + ' ' + user.lastname,
-                time: check.time.toDate().toLocaleTimeString(),
-                date: check.time.toDate().toDateString(),
-                in: inout,
-              })
-            }
-
-          }).catch(reason => {
-            console.error(reason, 'User not found');
-          })
-        });
-
-        return checks;
-      }).then(checks => {
-        // Pass out newly created checks to the observable to iterate in the page
-        this.checks$ = Observable.create(obs => {
-          obs.next(checks);
-        });
-      }).finally(() => {
-        if(!this.isOpen){
-          this.toggle()
-        }
-      }).catch(() => {
-        if(!this.isOpen){
-          this.toggle()
-        }
-      })
+          }).catch(() => {
+          if(!this.isOpen){
+            this.toggle()
+          }
+        })
     });
   }
+
 
 }

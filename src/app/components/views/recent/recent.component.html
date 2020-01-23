@@ -13,7 +13,7 @@
     <input formControlName="limit" type="number" class="form-control" placeholder="Amount" aria-label="Ammount"
         aria-describedby="button-addon2"/>
 
-        <!-- Name Filter -->
+    <!-- Name Filter -->
     <div class="input-group-prepend ml-2">
         <span class="input-group-text" id="inputGroup-sizing-sm">Name </span>
     </div>
@@ -22,12 +22,18 @@
 
     <!-- Date Filter -->
     <div class="input-group-prepend ml-2">
-            <span class="input-group-text" id="inputGroup-sizing-sm">Date </span>
-        </div>
-    <input formControlName="date" type="date" class="form-control" placeholder="Name Filter" aria-label="Name"
+        <span class="input-group-text" id="inputGroup-sizing-sm">Date From </span>
+    </div>
+    <input formControlName="date" type="date" class="form-control" placeholder="Date" aria-label="Name"
         aria-describedby="button-addon2"/>
 
+    <div class="input-group-prepend ml-2">
+        <span class="input-group-text" id="inputGroup-sizing-sm">Date To</span>
+    </div>
+    <input formControlName="dateTo" type="date" class="form-control" placeholder="Date" aria-label="Name"
+        aria-describedby="button-addon2"/>
 
+    <!-- Apply Button -->
     <div class="input-group-append ml-2">
         <button class="btn btn-outline-primary" type="submit" id="button-addon2">Apply</button>
     </div>
@@ -43,13 +49,13 @@
                 <div class="col-md-4">
                     <h5>{{ check.name }} ({{check.snum}})</h5>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-4">
                     <p> {{ check.time }} -- {{ check.date }}</p>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-2">
                     <p style="color: rgb(101, 167, 230)"> <strong>{{ check.in }}</strong></p>
                 </div>
-                <div class="col-md-1">
+                <div class="col-md-2">
                     <svg *ngIf="check.in === 'Check IN'" xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24">
                         <path d="M0 0h24v24H0z" fill="none"/>
                         <path fill="#33BB22" d="M11.59 7.41L15.17 11H1v2h14.17l-3.59 3.59L13 18l6-6-6-6-1.41 1.41zM20 6v12h2V6h-2z"/>

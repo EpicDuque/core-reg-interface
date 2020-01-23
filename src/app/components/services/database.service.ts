@@ -28,6 +28,9 @@ export class DatabaseService {
   getLatestChecks(lim: number): Promise<firestore.QuerySnapshot> {
     return this.checksCol.ref.orderBy('time', 'desc').limit(lim).get();
   }
+  getChecksByDate(dateFrom: Date, dateTo: Date, lim: number = 10): Promise<firestore.QuerySnapshot> {
+    return this.checksCol.ref.orderBy('time', 'desc').where('time', '>=', dateFrom).where('time', '<=', dateTo).limit(lim).get();
+  }
 
   // User Collection
   getUser(param: string, arg: string): firebase.firestore.Query {
